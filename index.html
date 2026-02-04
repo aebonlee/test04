@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>YouTube 영상 제작 프로세스</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px 20px; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 10px; color: #f8fafc; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 16px; font-size: 14px; }
+  .format-badge {
+    display: flex; justify-content: center; gap: 12px; margin-bottom: 50px;
+  }
+  .format-badge span {
+    padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge-long { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); }
+  .badge-short { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.4); }
+  .pipeline { max-width: 920px; margin: 0 auto; position: relative; }
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #3b82f6, #6366f1, #8b5cf6, #a855f7, #ec4899, #f59e0b, #10b981, #06b6d4, #3b82f6);
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .step:nth-child(even) { flex-direction: row-reverse; }
+  .step-number {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .step-content {
+    width: calc(50% - 46px);
+    padding: 20px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .step:nth-child(odd) .step-content { margin-right: auto; }
+  .step:nth-child(even) .step-content { margin-left: auto; }
+  .step-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .step-desc { font-size: 13px; color: #cbd5e1; line-height: 1.8; }
+  .step-desc b { color: #f1f5f9; }
+  .step-tool {
+    display: inline-block; margin-top: 12px; padding: 3px 10px;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+    margin-right: 4px;
+  }
+  .step-who {
+    display: inline-block; margin-top: 12px; padding: 3px 10px;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.08); color: #94a3b8;
+  }
+  .divider {
+    display: flex; align-items: center; justify-content: center;
+    margin: 16px 0; position: relative; z-index: 1;
+  }
+  .divider span {
+    background: #1e293b; padding: 4px 16px; border-radius: 20px;
+    font-size: 11px; color: #64748b; border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* Step colors */
+  .s0 .step-number { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .s0 .step-content { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.25); }
+  .s0 .step-title { color: #60a5fa; }
+  .s0 .step-tool { background: rgba(59,130,246,0.2); color: #93bbfd; }
+
+  .s1 .step-number { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+  .s1 .step-content { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.25); }
+  .s1 .step-title { color: #818cf8; }
+  .s1 .step-tool { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+
+  .s2 .step-number { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .s2 .step-content { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.25); }
+  .s2 .step-title { color: #a78bfa; }
+  .s2 .step-tool { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+
+  .s3 .step-number { background: linear-gradient(135deg, #a855f7, #9333ea); }
+  .s3 .step-content { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.25); }
+  .s3 .step-title { color: #c084fc; }
+  .s3 .step-tool { background: rgba(168,85,247,0.2); color: #d8b4fe; }
+
+  .s4 .step-number { background: linear-gradient(135deg, #ec4899, #db2777); }
+  .s4 .step-content { background: rgba(236,72,153,0.08); border-color: rgba(236,72,153,0.25); }
+  .s4 .step-title { color: #f472b6; }
+  .s4 .step-tool { background: rgba(236,72,153,0.2); color: #f9a8d4; }
+
+  .s5 .step-number { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .s5 .step-content { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); }
+  .s5 .step-title { color: #fbbf24; }
+  .s5 .step-tool { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+  .s6 .step-number { background: linear-gradient(135deg, #f97316, #ea580c); }
+  .s6 .step-content { background: rgba(249,115,22,0.08); border-color: rgba(249,115,22,0.25); }
+  .s6 .step-title { color: #fb923c; }
+  .s6 .step-tool { background: rgba(249,115,22,0.2); color: #fdba74; }
+
+  .s7 .step-number { background: linear-gradient(135deg, #10b981, #059669); }
+  .s7 .step-content { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
+  .s7 .step-title { color: #34d399; }
+  .s7 .step-tool { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+
+  .s8 .step-number { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  .s8 .step-content { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.25); }
+  .s8 .step-title { color: #22d3ee; }
+  .s8 .step-tool { background: rgba(6,182,212,0.2); color: #67e8f9; }
+
+  .s9 .step-number { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  .s9 .step-content { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.25); }
+  .s9 .step-title { color: #60a5fa; }
+  .s9 .step-tool { background: rgba(59,130,246,0.2); color: #93bbfd; }
+</style>
+</head>
+<body>
+
+<h1>YouTube 영상 제작 프로세스</h1>
+<p class="subtitle">소재 파일 하나로 영상 재료 완성</p>
+<div class="format-badge">
+  <span class="badge-long">롱폼 (10~15분)</span>
+  <span class="badge-short">숏폼 (1분 이내)</span>
+</div>
+
+<div class="pipeline">
+
+  <!-- Step 1: 소재 준비 -->
+  <div class="step s0">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <div class="step-title">소재 준비</div>
+      <div class="step-desc">
+        영상으로 만들 콘텐츠를 <b>MD 파일</b>로 준비합니다.<br>
+        이미 작성해둔 콘텐츠 파일을 그대로 사용하거나,<br>
+        새로운 주제가 있으면 텍스트로 정리해서 파일로 저장합니다.
+      </div>
+      <span class="step-who">사용자</span>
+    </div>
+  </div>
+
+  <!-- Step 2: 경쟁 영상 리서치 -->
+  <div class="step s1">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <div class="step-title">경쟁 영상 리서치</div>
+      <div class="step-desc">
+        소재와 비슷한 주제의 <b>인기 유튜브 영상 3개</b>를 자동으로 찾습니다.<br><br>
+        찾은 영상마다:<br>
+        &bull; <b>자막 전문</b>을 그대로 추출하고<br>
+        &bull; <b>조회수, 채널명, 영상 길이</b> 등 기본 정보를 가져오고<br>
+        &bull; 자막을 AI에게 넘겨서 <b>"이 영상이 왜 인기 있는지"</b>,
+               <b>"도입&rarr;본론&rarr;마무리 구성이 어떻게 되어 있는지"</b>를 분석하고<br>
+        &bull; 그 구성을 참고해서 <b>우리 영상에 쓸 수 있는 뼈대 구성안</b>을 만들어줍니다.
+      </div>
+      <span class="step-tool">Gemini (영상 검색 + 분석)</span>
+      <span class="step-tool">yt-dlp (영상 정보)</span>
+      <span class="step-tool">youtube-transcript-api (자막)</span>
+      <span class="step-who">자동</span>
+    </div>
+  </div>
+
+  <!-- Step 3: 올인원 스크립트 생성 -->
+  <div class="step s2">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <div class="step-title">제목 + 썸네일 + 대본 한번에 생성</div>
+      <div class="step-desc">
+        보통은 제목 따로, 썸네일 문구 따로, 대본 따로 만들어야 하는데,<br>
+        여기서는 소재 파일과 2단계 리서치 결과를 합쳐서<br>
+        <b>세 가지를 한번에(올인원)</b> 생성합니다.<br><br>
+        &bull; <b>영상 제목</b> &mdash; 클릭을 유도하는 제목<br>
+        &bull; <b>썸네일 문구</b> &mdash; 썸네일 이미지에 들어갈 텍스트<br>
+        &bull; <b>전체 대본</b> &mdash; 영상에서 읽을 전체 스크립트<br><br>
+        생성 후 사용자가 확인하고, 수정이 필요하면 수정합니다.
+      </div>
+      <span class="step-tool">Claude (대본 작성)</span>
+      <span class="step-who">사용자 확인/수정</span>
+    </div>
+  </div>
+
+  <div class="divider"><span>여기서부터 자동 생성</span></div>
+
+  <!-- Step 4: 대본 → 섹션 분리 -->
+  <div class="step s3">
+    <div class="step-number">4</div>
+    <div class="step-content">
+      <div class="step-title">대본을 장면별로 분리</div>
+      <div class="step-desc">
+        확정된 대본을 분석해서 <b>장면(섹션)별로 자동 분리</b>합니다.<br><br>
+        왜 필요한가?<br>
+        &bull; 장면마다 <b>맞는 이미지</b>를 따로 만들어야 하고<br>
+        &bull; 장면마다 <b>음성 파일</b>을 따로 생성해야 하고<br>
+        &bull; 나중에 영상 편집할 때 <b>장면 순서와 타이밍</b>을 맞춰야 하기 때문입니다.
+      </div>
+      <span class="step-who">자동</span>
+    </div>
+  </div>
+
+  <!-- Step 5: 이미지 생성 -->
+  <div class="step s4">
+    <div class="step-number">5</div>
+    <div class="step-content">
+      <div class="step-title">장면별 이미지 생성</div>
+      <div class="step-desc">
+        각 장면의 내용에 맞는 <b>이미지 생성용 프롬프트</b>를 자동으로 만듭니다.<br><br>
+        생성된 프롬프트를 <b>Whisk</b> 또는 <b>Nana Banana</b> 같은<br>
+        AI 이미지 생성 도구에 붙여넣어서 이미지를 만듭니다.
+      </div>
+      <span class="step-tool">프롬프트 자동 생성</span>
+      <span class="step-who">사용자가 이미지 도구에서 생성</span>
+    </div>
+  </div>
+
+  <!-- Step 6: 음성 생성 -->
+  <div class="step s5">
+    <div class="step-number">6</div>
+    <div class="step-content">
+      <div class="step-title">음성(나레이션) 생성</div>
+      <div class="step-desc">
+        각 장면의 대본 텍스트를 <b>ElevenLabs TTS API</b>에 보내서<br>
+        사람처럼 자연스러운 <b>음성 파일(MP3)</b>을 장면별로 생성합니다.<br><br>
+        내 목소리를 복제(Voice Cloning)해서 사용할 수도 있습니다.
+      </div>
+      <span class="step-tool">ElevenLabs API</span>
+      <span class="step-who">자동</span>
+    </div>
+  </div>
+
+  <!-- Step 7: 유튜브 메타데이터 -->
+  <div class="step s6">
+    <div class="step-number">7</div>
+    <div class="step-content">
+      <div class="step-title">유튜브 업로드 정보 생성</div>
+      <div class="step-desc">
+        유튜브에 영상을 올릴 때 필요한 정보를 자동으로 만들어줍니다.<br><br>
+        &bull; <b>영상 제목</b> (3단계에서 만든 것)<br>
+        &bull; <b>영상 설명</b> &mdash; 키워드 포함, SEO 최적화<br>
+        &bull; <b>태그</b> &mdash; 검색에 잘 걸리는 해시태그<br>
+        &bull; <b>편집 가이드</b> &mdash; 장면별 타이밍과 순서 정리<br><br>
+        이 정보를 보면서 영상 편집과 업로드를 진행합니다.
+      </div>
+      <span class="step-who">자동</span>
+    </div>
+  </div>
+
+  <!-- Step 8: 영상 편집 + 업로드 -->
+  <div class="step s7">
+    <div class="step-number">8</div>
+    <div class="step-content">
+      <div class="step-title">영상 편집 &rarr; 유튜브 업로드</div>
+      <div class="step-desc">
+        지금까지 만든 재료들을 <b>Vrew(영상 편집 프로그램)</b>에서 조합합니다.<br><br>
+        &bull; <b>음성 파일</b>을 타임라인에 배치하고<br>
+        &bull; 각 장면에 맞는 <b>이미지</b>를 올려놓고<br>
+        &bull; 자막을 달면 영상 완성<br><br>
+        완성된 영상을 유튜브에 업로드하고,<br>
+        7단계에서 만든 제목/설명/태그를 입력합니다.
+      </div>
+      <span class="step-tool">Vrew (편집)</span>
+      <span class="step-tool">YouTube (업로드)</span>
+      <span class="step-who">사용자</span>
+    </div>
+  </div>
+
+  <!-- Step 9: 블로그 -->
+  <div class="step s8">
+    <div class="step-number">9</div>
+    <div class="step-content">
+      <div class="step-title">블로그 글 생성 (선택)</div>
+      <div class="step-desc">
+        영상 업로드가 끝나면, <b>원본 소재 내용</b>에<br>
+        <b>유튜브 영상 URL</b>을 붙여서 블로그 글을 자동 생성합니다.<br><br>
+        소재 자체가 이미 잘 정리된 콘텐츠이므로,<br>
+        여기에 영상 링크만 추가하면 블로그 글이 됩니다.
+      </div>
+      <span class="step-who">자동 (선택)</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
